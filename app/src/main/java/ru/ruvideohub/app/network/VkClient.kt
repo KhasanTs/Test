@@ -57,7 +57,8 @@ class VkClient(private val prefs: SharedPreferences) {
                     val videoId = v.optLong("id")
                     if (videoId == 0L) continue
                     val id = "vk:${ownerId}_$videoId"
-                    val title = v.optString("title").ifBlank { continue }
+                    val title = v.optString("title").trim()
+                    if (title.isBlank()) continue
                     val image = v.optJSONArray("image")
                     val poster = image?.let { arr -> (0 until arr.length()).mapNotNull { arr.optJSONObject(it)?.optString("url") }.lastOrNull() }
                     val files = v.optJSONObject("files")
