@@ -28,6 +28,7 @@ class MainState(private val prefs: SharedPreferences) {
     var options by mutableStateOf<List<PlaybackOption>>(emptyList())
     var loading by mutableStateOf(false)
     var error by mutableStateOf<String?>(null)
+    var settingsOpen by mutableStateOf(false)
 
     /** Ошибки по отдельным источникам за последний поиск (источник -> текст ошибки). */
     var sourceErrors by mutableStateOf<Map<String, String>>(emptyMap())
@@ -74,7 +75,7 @@ class MainState(private val prefs: SharedPreferences) {
                 }
                 lists
             }
-            sourceErrors = errors
+            sourceErrors = emptyMap()
             val combined = all
                 .groupBy { normalize(it.title) }
                 .map { (_, same) ->
@@ -85,8 +86,48 @@ class MainState(private val prefs: SharedPreferences) {
                 .sortedByDescending { relevance(q, it.title) }
             results = combined
             if (combined.isEmpty()) {
-                error = errors.values.firstOrNull() ?: "Ничего не найдено"
+                error = "Ничего не найдено"
             }
+        } finally {
+            loading = false
+        }
+    }
+
+
+    suspend fun searchSource(sourceKey: String) {
+        val q = query.trim()
+        if (q.isBlank()) return
+
+        loading = true
+        error = null
+        results = emptyList()
+
+        try {
+            val spec = ALL_SOURCES.firstOrNull {
+                it.key == sourceKey
+            }
+
+            if (spec == null) {
+                error = "Неизвестный источник"
+                return
+            }
+
+            val result = when (sourceKey) {
+                "rutube" -> rutube.search(q)
+                "vk" -> vk.search(q)
+                else -> generic.search(spec, q)
+            }
+
+            results = result.movies
+                .sortedByDescending {
+                    relevance(q, it.title)
+                }
+
+            if (results.isEmpty()) {
+                error = "По запросу «$q» ничего не найдено"
+            }
+        } catch (_: Exception) {
+            error = "Не удалось выполнить поиск"
         } finally {
             loading = false
         }

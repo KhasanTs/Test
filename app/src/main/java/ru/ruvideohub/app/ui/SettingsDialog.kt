@@ -39,7 +39,7 @@ fun SettingsDialog(prefs: SharedPreferences, onClose: () -> Unit) {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.heightIn(max = 560.dp)) {
                 item {
                     Text(
-                        "RUTUBE работает без настройки. Остальные источники подключаются через собственный JSON/API-адрес. " +
+                        "RUTUBE работает без настройки. Остальные источники подключаются через JSON/API-адрес. " +
                             "Все значения на этом экране хранятся в зашифрованном виде на устройстве.",
                         fontSize = 12.sp, color = Color.Gray
                     )

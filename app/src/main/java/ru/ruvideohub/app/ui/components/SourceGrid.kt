@@ -15,23 +15,48 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import ru.ruvideohub.app.model.ALL_SOURCES
 
 @Composable
-fun SourceGrid(tv: Boolean, onSource: (String) -> Unit) {
-    val sources = listOf("RUTUBE", "VK", "OK", "MAIL.RU")
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        items(sources) { name ->
+fun SourceGrid(
+    tv: Boolean,
+    onSource: (String) -> Unit
+) {
+    LazyRow(
+        horizontalArrangement =
+            Arrangement.spacedBy(12.dp)
+    ) {
+        items(
+            ALL_SOURCES,
+            key = { it.key }
+        ) { spec ->
+
             Surface(
-                modifier = Modifier.clickable { onSource(name) },
                 shape = RoundedCornerShape(14.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.clickable {
+                    onSource(spec.key)
+                }
             ) {
                 Column(
-                    Modifier.padding(horizontal = 17.dp, vertical = 13.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    Modifier.padding(
+                        horizontal = 17.dp,
+                        vertical = 13.dp
+                    ),
+                    horizontalAlignment =
+                        Alignment.CenterHorizontally
                 ) {
-                    Text(name, fontWeight = FontWeight.Bold)
-                    Text("Открыть", style = MaterialTheme.typography.labelSmall)
+                    Text(
+                        spec.title,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        "Искать видео",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }

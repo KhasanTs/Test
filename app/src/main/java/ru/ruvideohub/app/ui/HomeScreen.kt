@@ -24,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,36 +36,131 @@ import ru.ruvideohub.app.ui.components.SearchBox
 import ru.ruvideohub.app.ui.components.SourceGrid
 
 @Composable
-fun HomeScreen(tv: Boolean, state: MainState, onOpen: (Movie) -> Unit, onSearch: () -> Unit, onSettings: () -> Unit, onSource: (String) -> Unit) {
-    val pad = if (tv) 44.dp else 16.dp
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = pad, vertical = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("RU VIDEO HUB", fontSize = if (tv) 27.sp else 22.sp, fontWeight = FontWeight.Black)
+fun HomeScreen(
+    tv: Boolean,
+    state: MainState,
+    onOpen: (Movie) -> Unit,
+    onSearch: () -> Unit,
+    onSource: (String) -> Unit,
+    onSettings: () -> Unit
+) {
+    val pad = 44.dp
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = pad,
+                    vertical = 18.dp
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "RU VIDEO HUB",
+                fontSize = 27.sp,
+                fontWeight = FontWeight.Black
+            )
+
             Spacer(Modifier.width(22.dp))
-            SearchBox(state.query, { state.query = it }, onSearch, tv)
+
+            SearchBox(
+                state.query,
+                { state.query = it },
+                onSearch,
+                true
+            )
+
             Spacer(Modifier.weight(1f))
-            IconButton(onClick = onSettings) { Icon(Icons.Default.Settings, "Настройки") }
-        }
-        LazyColumn(Modifier.fillMaxSize().padding(horizontal = pad), contentPadding = PaddingValues(bottom = 40.dp), verticalArrangement = Arrangement.spacedBy(28.dp)) {
-            item { Hero(tv) }
-            item { Catalogs(tv) }
-            if (state.loading) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
-            state.error?.let { msg -> item { Text(msg, color = MaterialTheme.colorScheme.error) } }
-            if (state.sourceErrors.isNotEmpty()) item {
-                Text(
-                    "Не ответили: " + state.sourceErrors.entries.joinToString(", ") { "${it.key} (${it.value})" },
-                    color = Color.Gray, fontSize = 12.sp
+
+            IconButton(
+                onClick = onSettings
+            ) {
+                Icon(
+                    Icons.Default.Settings,
+                    contentDescription = "Настройки"
                 )
             }
-            if (state.results.isNotEmpty()) item {
-                Text("Результаты", fontSize = 23.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(12.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    items(state.results, key = { it.id }) { MovieCard(it, tv, onOpen) }
+        }
+
+        LazyColumn(
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = pad),
+            contentPadding = PaddingValues(bottom = 40.dp),
+            verticalArrangement = Arrangement.spacedBy(28.dp)
+        ) {
+            item {
+                Hero(true)
+            }
+
+            item {
+                Catalogs(true)
+            }
+
+            if (state.loading) {
+                item {
+                    LinearProgressIndicator(
+                        Modifier.fillMaxWidth()
+                    )
                 }
             }
-            item { Text("Источники", fontSize = 23.sp, fontWeight = FontWeight.Bold) }
-            item { SourceGrid(tv, onSource) }
+
+            state.error?.let { message ->
+                item {
+                    Text(
+                        message,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+
+            if (state.results.isNotEmpty()) {
+                item {
+                    Text(
+                        "Результаты поиска",
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    LazyRow(
+                        horizontalArrangement =
+                            Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(
+                            state.results,
+                            key = { it.id }
+                        ) { movie ->
+                            MovieCard(
+                                movie,
+                                true,
+                                onOpen
+                            )
+                        }
+                    }
+                }
+            }
+
+            item {
+                Text(
+                    "Источники",
+                    fontSize = 23.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            item {
+                SourceGrid(
+                    true,
+                    onSource
+                )
+            }
         }
     }
 }
